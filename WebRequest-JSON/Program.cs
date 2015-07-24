@@ -17,6 +17,11 @@ namespace WebRequest_JSON
             var jo = JObject.Parse(jsonString);
             return jo["__type"].ToString();
         }
+
+        public static bool IsType( this JObject jobject, string typeStr )
+        {
+            return (String.Compare(jobject["__type"].ToString(), typeStr, true) == 0);
+        }
     }
 
     class Program
@@ -51,19 +56,44 @@ namespace WebRequest_JSON
             string jsonType = jsonString.GetJsonType();
             Console.WriteLine("Raw JSON: {0}", jsonString);
             Console.WriteLine("jsonType: {0}\r\n", jsonType);
+            JObject jobj = JObject.Parse(jsonString);
+            if (jobj.IsType("ALData_User"))
+            {
+                Console.WriteLine("Using .ToString()");
+                Console.WriteLine("canApprove: {0}", jobj["canApprove"].ToString());
+                Console.WriteLine("canChangeAfterApproval: {0}", jobj["canChangeAfterApproval"].ToString());
+                Console.WriteLine("canOverridePaidOut: {0}", jobj["canOverridePaidOut"].ToString());
+                Console.WriteLine("canSelectFornightRest: {0}", jobj["canSelectFornightRest"].ToString());
+                Console.WriteLine("canSelectWeekRest: {0}", jobj["canSelectWeekRest"].ToString());
+                Console.WriteLine("canStatusChange: {0}", jobj["canStatusChange"].ToString());
+                Console.WriteLine("dlaAmount: {0}", jobj["dlaAmount"].ToString());
+                Console.WriteLine("dlaExpiry: {0}", jobj["dlaExpiry"].ToString());
+                Console.WriteLine("negIntMargin: {0}", jobj["negIntMargin"].ToString());
+                Console.WriteLine("usercode: {0}", jobj["usercode"].ToString());
+
+
+                Console.WriteLine("Using casting");
+                Console.WriteLine("canApprove: {0}", (bool)jobj["canApprove"]);
+                Console.WriteLine("canChangeAfterApproval: {0}", (bool)jobj["canChangeAfterApproval"]);
+                Console.WriteLine("canOverridePaidOut: {0}", (bool)jobj["canOverridePaidOut"]);
+                Console.WriteLine("canSelectFornightRest: {0}", (bool)jobj["canSelectFornightRest"]);
+                Console.WriteLine("canSelectWeekRest: {0}", (bool)jobj["canSelectWeekRest"]);
+                Console.WriteLine("canStatusChange: {0}", (bool)jobj["canStatusChange"]);
+                Console.WriteLine("dlaAmount: {0}", (decimal)jobj["dlaAmount"]);
+                Console.WriteLine("dlaExpiry: {0}", (DateTime)jobj["dlaExpiry"]);
+                Console.WriteLine("negIntMargin: {0}", (decimal)jobj["negIntMargin"]);
+                Console.WriteLine("usercode: {0}", jobj["usercode"].ToString());
+            }
         }
 
         static string GenUserRequest(string userName)
         {
             return String.Format("{0}/{1}/{2}?SBSALRestApp", urlBase, userRequest, userName);
-
         }
 
         // HTTP Status Codes (Windows) <https://msdn.microsoft.com/en-us/library/aa383887.aspx>
         static bool InvokeGetRequest(string webRequest, out HttpStatusCode statusCode, out string responseFromServer)
         {
-            // Create a request using a URL . 
-
             WebRequest request = WebRequest.Create(webRequest);
             request.Credentials = CredentialCache.DefaultCredentials; // supports Windows auth
 
@@ -135,7 +165,13 @@ namespace WebRequest_JSON
             if (statusCode != HttpStatusCode.OK)
                 Console.WriteLine("Request: Did not complete");
             else
+            {
                 Console.WriteLine("Request completed");
+                JObject jobj = JObject.Parse(jsonResponse);
+                Console.WriteLine("Casting");
+
+
+            }
 
             Console.WriteLine("------------");
 
